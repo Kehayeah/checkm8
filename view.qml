@@ -9,6 +9,7 @@ ApplicationWindow {
     title: "Check M8"
 
     property string ipFile: ""
+    property string csvFile: ""
     property string blackOut: ""
 
     TabBar {
@@ -62,10 +63,11 @@ ApplicationWindow {
             id: primaryTab
 
             TextField {
-                id: textField
+                id: csvSelection
                 x: 29
                 y: 121
                 placeholderText: qsTr("Text Field")
+                text: csvFile
             }
 
             Button {
@@ -75,6 +77,10 @@ ApplicationWindow {
                 width: 83
                 height: 36
                 text: qsTr("Open")
+                onClicked: {
+                    // call the slot to process the text
+                    main.openCSV()
+                }
             }
 
             Text {
@@ -86,9 +92,11 @@ ApplicationWindow {
             }
 
             ComboBox {
-                id: comboBox
+                id: siteSelection
                 x: 425
                 y: 121
+                currentIndex: -1
+                model: ["Inizio", "Amelie's", "Ifos"]
             }
 
             Button {
@@ -98,6 +106,10 @@ ApplicationWindow {
                 width: 235
                 height: 40
                 text: qsTr("Let's Get Em")
+                onClicked: {
+                    // call the slot to process the text
+                    main.parseLinkwise(csvSelection.text, siteSelection.currentIndex)
+                }
             }
         }
 

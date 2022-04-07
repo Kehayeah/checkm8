@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.14.82, 2022-04-06T23:51:19. -->
+<!-- Written by QtCreator 4.14.82, 2022-04-07T08:59:11. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -175,16 +175,16 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">linkwise_gettem</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.C:/Users/bkeh9/Desktop/Linkwise Gettem/LinkWise_Gettem/linkwise_gettem.py</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/bkeh9/Desktop/Linkwise Gettem/LinkWise_Gettem/linkwise_gettem.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">checkm8</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.D:/git/gitlab/checkm8/checkm8.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/git/gitlab/checkm8/checkm8.py</value>
     <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{afca3f12-d0d7-4451-8a9d-dc01685ece1a}</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">C:\Users\bkeh9\Desktop\Linkwise Gettem\LinkWise_Gettem\linkwise_gettem.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">D:\git\gitlab\checkm8\checkm8.py</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/bkeh9/Desktop/Linkwise Gettem/LinkWise_Gettem</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">D:/git/gitlab/checkm8</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

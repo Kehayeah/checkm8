@@ -39,6 +39,7 @@ class Main(QObject):
             print(json.dumps(bad_ones, indent=4, sort_keys=True))
             engine.rootObjects()[0].setProperty('blackOut', json.dumps(bad_ones, indent=4, sort_keys=True))
 
+    # Saves JSON with Ip blacklist
     @pyqtSlot(str)
     def exportBlacklist(self, arg1):
         if (arg1):
@@ -46,6 +47,47 @@ class Main(QObject):
             file = open(fileName,'w')
             file.write(arg1)
             file.close()
+
+    #Open CSV for linkwise (txt for tests)
+    @pyqtSlot()
+    def openCSV(self):
+        file , check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
+                                                       "", "CSV Files (*.csv);;Text Files (*.txt);;All Files (*)")
+        if check:
+            engine.rootObjects()[0].setProperty('csvFile', file)
+
+    @pyqtSlot(str, int)
+    def parseLinkwise(self, arg1, arg2):
+        rType = "https://"
+        #print (arg1, arg2)
+        if (arg1):
+            if (arg2 != -1):
+                site = ""
+                if (arg2 == 0):
+                    site = "www.inizio.gr/"
+                elif (arg2 == 1):
+                    site = "www.amelies.gr/"
+                elif (arg2 == 2):
+                    site = "www.ifos.gr/"
+                elif (arg2 == 3):
+                    site = "www.pervedere.gr/"
+                #Set my URL
+                URL = rType + site + "helpdesk/get_linkwise_stats.php"
+                #fetch data from the file. We will handle txt for now, CSV when proof of consept is done
+                prods = ""
+                with open(arg1) as f:
+                    count = 0
+                    for pID in f.readlines():
+                        if (count == 0):
+                            prods += pID.strip()
+                        else:
+                            prods += ", " + pID.strip()
+                        count += 1
+                print (prods)
+                r = requests.post(url = URL, data = {"order_id":(prods)})
+                text = r.text
+                print(json.dumps(text, indent=4, sort_keys=True))
+                #engine.rootObjects()[0].setProperty('blackOut', json.dumps(bad_ones, indent=4, sort_keys=True))
 
 
 if __name__ == "__main__":
