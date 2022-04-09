@@ -11,6 +11,8 @@ ApplicationWindow {
     property string ipFile: ""
     property string csvFile: ""
     property string blackOut: ""
+    property string authKey: ""
+    property string statLink: "Status: Not Started"
 
     TabBar {
         id: tabBar
@@ -32,7 +34,7 @@ ApplicationWindow {
 
         TabButton {
             id: tabButton1
-            x: 0
+            x: 113
             y: 0
             width: 107
             height: 41
@@ -41,14 +43,25 @@ ApplicationWindow {
         }
 
         TabButton {
+            id: tabButton4
+            x: 221
+            y: 0
+            width: 107
+            height: 41
+            text: qsTr("Security")
+            checked: false
+        }
+
+        TabButton {
             id: tabButton3
-            x: -1
-            y: 9
+            x: 334
+            y: 0
             width: 107
             height: 41
             text: qsTr("About")
             checked: false
         }
+
     }
 
     StackLayout {
@@ -108,8 +121,19 @@ ApplicationWindow {
                 text: qsTr("Let's Get Em")
                 onClicked: {
                     // call the slot to process the text
-                    main.parseLinkwise(csvSelection.text, siteSelection.currentIndex)
+                    main.parseLinkwise(csvSelection.text, siteSelection.currentIndex, authKeyText.text)
                 }
+            }
+
+            Text {
+                id: statusLinkw
+                x: 0
+                y: 256
+                width: 600
+                height: 19
+                text: statLink
+                font.pixelSize: 16
+                horizontalAlignment: Text.AlignHCenter
             }
         }
 
@@ -236,6 +260,40 @@ ApplicationWindow {
         }
 
         Item{
+            id: fourthTab
+
+            TextField {
+                id: authKeyText
+                x: 122
+                y: 137
+                placeholderText: qsTr("Auth Key")
+                text: authKey
+            }
+
+            Text {
+                id: text6
+                x: 25
+                y: 20
+                text: qsTr("You set your keys here, because we are secure af")
+                font.pixelSize: 25
+            }
+
+            Button {
+                id: saveKey
+                x: 356
+                y: 137
+                text: qsTr("Save")
+
+                onClicked: {
+                    // call the slot to process the text
+                    main.saveAuth(authKeyText.text)
+                }
+            }
+
+
+        }
+
+        Item{
             id: thirdTab
 
             Rectangle{
@@ -267,6 +325,8 @@ ApplicationWindow {
                 font.pixelSize: 14
             }
         }
+
+
 
 
     }
