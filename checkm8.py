@@ -6,7 +6,11 @@ import json
 import xlrd
 import xlwt
 import os
+import http.client
+import ssl
+import xmltodict
 
+from datetime import date
 from xlwt import Workbook
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine
@@ -24,6 +28,10 @@ class Main(QObject):
         data = json.load(file)
         file.close()
         engine.rootObjects()[0].setProperty('authKey', data["authKey"])
+        engine.rootObjects()[0].setProperty('usernam', data["username"])
+        engine.rootObjects()[0].setProperty('pass', data["passwd"])
+        engine.rootObjects()[0].setProperty('version', data["version"])
+        engine.rootObjects()[0].setProperty('buildnum', data["buildNum"])
 
 
     # Saves JSON with Auth Key and other settings, if they exist
@@ -37,6 +45,21 @@ class Main(QObject):
             file.close()
             file = open(fileName,'w')
             data["authKey"] = arg1
+            file.write(json.dumps(data, indent=2))
+            file.close()
+
+    # Saves JSON with uname and passwd. Currently plaintext but it's a small scale usage.
+    @pyqtSlot(str, str)
+    def savePlsk(self, arg1, arg2):
+        if (arg1):
+            fileName = "config.json"
+            file = open(fileName)
+
+            data = json.load(file)
+            file.close()
+            file = open(fileName,'w')
+            data["username"] = arg1
+            data["passwd"] = arg2
             file.write(json.dumps(data, indent=2))
             file.close()
 
@@ -61,8 +84,7 @@ class Main(QObject):
                         str1 += ele
                     r = requests.post(url = URL, data = {"ip":ip.strip()})
                     text = r.text
-                    bad_ones.append((str1 , re.findall(r'<i class="fa fa-minus-circle text-danger" aria-hidden="true"></i> (.+?)</td>', text)))
-                    print (ip)
+                    bad_ones.append((ip.strip() , re.findall(r'<i class="fa fa-minus-circle text-danger" aria-hidden="true"></i> (.+?)</td>', text)))
             print(json.dumps(bad_ones, indent=4, sort_keys=True))
             engine.rootObjects()[0].setProperty('blackOut', json.dumps(bad_ones, indent=4, sort_keys=True))
 
@@ -193,7 +215,129 @@ class Main(QObject):
                 sheet2.col(5).width = 256 * 30
                 workbook.save(os.path.basename(arg1).split('.')[0] + "_Updated.xls")
                 engine.rootObjects()[0].setProperty('statLink', "Status: Done")
-#                    sheet2.write(0, index, value)
+    
+    
+
+    #Handle Server Monitoring
+    @pyqtSlot(int, str, str, int)
+    def monitorPlsk(self, arg1, arg2, arg3, arg4):
+        if (arg1 > -1):
+            server = ""
+            if (arg1 == 0):
+                server = "oramacms.gr"
+            elif (arg1 == 1):
+                server = "oramacms1.gr"
+            elif (arg1 == 2):
+                server = "oramacms2.gr"
+            elif (arg1 == 3):
+                server = "oramacms3.gr"
+            elif (arg1 == 4):
+                server = "oramacms4.gr"
+            elif (arg1 == 5):
+                server = "oramacms5.gr"
+            elif (arg1 == 6):
+                server = "s196090.vsb.lancom.gr"
+            elif (arg1 == 7):
+                server = "rthessgroup.gr"
+            elif (arg1 == 8):
+                server = "vkechagias.eu"
+
+            xml = """<packet>
+                        <webspace>
+                        <get>
+                        <filter/>
+                        <dataset>
+                            <gen_info/>
+                            <disk_usage/>
+                            <limits/>
+                        </dataset>
+                        </get>
+                        </webspace>
+                        </packet>
+                        """
+            data = main.request(xml, server, arg2, arg3)
+            fullData = json.loads(json.dumps(data["packet"]["webspace"]["get"], indent=4, sort_keys=True))
+            #we now have all the subs and their usage, limits and data. Let's have fun
+            status = ""
+            for i in range (len(fullData["result"])):
+                specData = fullData["result"][i]["data"]
+                name = specData["gen_info"]["name"]
+                if (int(specData['gen_info']['real_size']) > int(specData['limits']['limit'][3]['value']) and int(specData['limits']['limit'][3]['value']) != -1):
+                    differ = int(((int(specData['gen_info']['real_size']) - int(specData['limits']['limit'][3]['value'])) /1024) /1024)
+                    if (arg4 == 0):
+                        status += name + ": " + str(differ) + "MB over limit\n"
+                    else:
+                        status += name + ": " + str(differ) + "MB Over|"
+            if (arg4 == 0):
+                engine.rootObjects()[0].setProperty('monRes', status)
+            else:
+                return status
+
+    #Handle Server Monitoring For ALL sites
+    @pyqtSlot(str, str)
+    def monitorPlskAll(self, arg1, arg2):
+        #make a new excel file
+        workbook = xlwt.Workbook()
+        sheet = workbook.add_sheet("Sheet 1")
+        #make a style with bold centered text
+        headStyle = xlwt.easyxf('font: bold 1; align: horiz center')
+        bodStyle  = xlwt.easyxf('align: horiz center')
+        for i in range (0, 7):
+            if (i == 0):
+                server = "oramacms.gr"
+            elif (i == 1):
+                server = "oramacms1.gr"
+            elif (i == 2):
+                server = "oramacms2.gr"
+            elif (i == 3):
+                server = "oramacms3.gr"
+            elif (i == 4):
+                server = "oramacms4.gr"
+            elif (i == 5):
+                server = "oramacms5.gr"
+            elif (i == 6):
+                server = "s196090.vsb.lancom.gr"
+            elif (i == 7):
+                server = "rthessgroup.gr"
+            result = self.monitorPlsk(i, arg1, arg2, 1)
+            #split result in :
+            result = result.split('|')
+            
+            #write the server name in col i
+            sheet.write(0, i, "Server: " + server, headStyle)
+            sheet.col(i).width = 256 * 30
+            #for each entry in the result table, write in col i
+            for j in range (len(result)):
+                sheet.write(j+1, i, result[j], bodStyle)
+            #save and close
+            today = date.today()
+            workbook.save("Server_Stats_"+today.strftime("%d-%m-%Y")+".xls")
+
+        engine.rootObjects()[0].setProperty('hailStatus', "Status: Hailed Mary, you good")
+
+
+                
+
+
+    #The Request code for the XML API, straight from plesk's github <3
+    def request(self, request, server, user, passwd):
+        headers = {}
+        headers["Content-type"] = "text/xml"
+        headers["HTTP_PRETTY_PRINT"] = "TRUE"
+
+        headers["HTTP_AUTH_LOGIN"] = user
+        headers["HTTP_AUTH_PASSWD"] = passwd
+
+
+        conn = http.client.HTTPSConnection(server, "8443", context=ssl._create_unverified_context())
+
+        conn.request("POST", "/enterprise/control/agent.php", request, headers)
+        response = conn.getresponse()
+        data = response.read()
+        jsonData = xmltodict.parse(data.decode("utf-8"))
+        return jsonData
+            
+
 
 
 
